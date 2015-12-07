@@ -1,0 +1,492 @@
+https://www.coursera.org/learn/machine-learning/home/welcome
+?Regression
+We want to fit a straight line to a set of data.
+We define a cost function which sums the squares of differences (call it J).
+     Why squared difference and not absolute?  The squared difference has nicer mathematical properties; it's continuously                        differentiable (nice when you want to minimize it), it's a sufficient statistic for the Gaussian distribution, and it's (a version              of) the L2 norm which comes in handy for proving convergence and so on.
+
+We want to minimize the cost function with respect to @_0, @_1 (this gets us best linear fit).
+Hypothesis function: h_@(x) = @_0 + @_1(x)
+Regression, at the very least, highlights a possible connection between two variables, and invites further analysis of context and data.
+Initial cost function is plotted with one variable , i.e. @_1 vs. J(@_1).  Adding both variables into the mix results in a 3D plot (same concept applies, find min).
+
+Gradient descent is the more general term (think in any number of dimensions) that iteratively finds the paramters of a cost function to minimize the function.
+
+Wikiepdia: The gradient is a generalization of the usual concept of derivative of a function in one dimension to a function in several dimensions
+http://spin.atomicobject.com/2014/06/24/gradient-descent-linear-regression/
+
+Simultaneous update - use the previous values of theta for use in the cost function, then reassign (like in programming)
+Partial derivatives of cost function
+Can you solve for m,b directly? YES (linear algebra, see below)
+Linear Algebra Review
+How to calculate the inverse of a square matrix?  Use double-wide method A|I and matrix-row operations to get left-side to be I.
+
+Multivariate Regression
+
+We're going to use linear algebra to solve a multivariate equation
+
+Hypothesis function: h_@(x) = @_0 + @_1(x_1) + @_2(x_2) + ... + @_n(x_n)
+Simplify, let x_0 =1
+
+Leads to @Tx
+
+Feature Scaling - make gradient descent faster by putting variables in roughly the same range [-1, 1], divide by (max - min)
+Mean Normalization - in addition to scaling, subtract all training set values by the mean to get a roughly [-0.5, 0.5] range
+
+If gradient descent is working properly, it should decrease after each iteration (converge towards 0)
+Smaller alpha is most common fix for gradient descent going the wrong way
+
+Choosing appropriate features leads to different algorithms, create new variables based on current ones (use area of house instead of frontage and depth)
+
+Polynomial Regression - try quadratic or cubic function instead of linear (look at data)
+How to choose regression type? (linear, quadratic, cubic, etc.)  What about logarithms?
+
+Another method for getting optimal values for parameters - Normal Equation
+Set derivative = 0
+For multivariate cost function, set partial derivatives = 0
+
+When to use Gradient Descent vs. Normal Equation - Normal is typically better for smaller number of features, but can be slow as n gets very large.
+
+What if X'X is non-invertible?  Usually due to redundant features (linearly dependent) or too many features (so delete a feature or regularize).
+
+MATLAB
+good for prototyping ideas/algorithms, then once idea is proved out you would move to a programming language
+how do they generatic `magic` so quickly?
+
+Classification
+Binary problem, email filter, fraud detection, cancer detection
+
+Logistic regression = Classification
+We'll use a different h_theta(x) = g(theta' * x), where g(z) = 1 / (1 + e^-z) (sigmoid function)
+For the sigmoid function g(z), g(z) < 0.5 when z < 0 and g(z) > 0.5 when z > 0
+
+h(x) = estimated probablity that y = 1 on input x
+
+Based on sigmoid function shape, we can check
+    z >= 0 to predict y = 1
+    z < 0 to predict y = 0
+
+Linear boundary
+With variables x1, x2 we can define a decision boundary based on the above equations
+
+Non-linear
+Higher-order equations will lead to non-linear boundaries
+
+How do we choose theta now?  We need a cost function (simplified)
+
+Previously, Cost(h(x), y) = 1/2 * (h(x) - y)^2 (squares of error)
+J(theta) = 1/m * sum over m (Cost)
+
+For logistic regression, we get a non-convex cost function J which isn't guaranteed to converge to local minimum, so gradient descent is out
+
+New Cost function
+    Cost(h(x), y) =
+          -log(h(x))         if y = 1
+          -log(1 - h(x))    if y = 0
+
+    Why this function?  if y = 1 and h(x) = 1, Cost = 0     Greatly penalizes if h(x) = 0 but y = 1
+                                        if y = 0 and h(x) = 0, Cost = 0     Greatly penalizes if h(x) = 1 but y = 0
+          Beyond scope of this course to explain why this function is convex
+
+More concisely, Cost(h(x), y) = -y*log(h(x)) - (1-y) * log(1 - h(x))
+J(theta) = 1/m * sum over m (Cost)
+
+GD: theta_j := theta_j - alpha * partial derivative of J(theta)
+
+After calculating partial derivative, gradient descent looks identical to linear regression!  Only difference is definition of h(x)
+
+Advanced optimization algorithms
+    boils down to fancy algorithms that improve the GD loop assignment, pick good learning rate and theta
+
+Multiclass classification - more than just 2 classes
+    Email tagging (Work, Friends, Family, Hobby)
+    Turn data into multiple binary classification problems, use conditional probability for each class
+    For new input (e.g. email), run all regressions, pick the classifier with the greatest probability
+
+Overfitting
+    Underfit - doesn't fit training set well (i.e. using linear for nonlinear data)
+    Overfit - too much variance, too many features, hypothesis fits training set too well, fails to generalize to new examples
+
+    How to fix overfitting
+          remove features
+          Regularization - keep all features, reduce magnitude/values of theta
+
+Regularization
+     Small values for theta - makes hypothesis simpler, less prone to overfitting
+    Add regularization term (lambda * summation over all theta except first) to cost function decreases all theta
+     Large lambda leads to underfitting
+
+    Linear Regression
+
+
+Neural Networks
+Large number of features (e.g. one feature per pixel in a 50x50 image = 2500 features, quad=10^6)
+Layers of inputs before we get to h(x)
+layer 1 = input, layer 2 = hidden, layer 3 = output
+
+Gradient computation
+set a(1) = x, add offset at each layer, multiply by theta(layer), then apply g (sigmoid)
+
+Cost function: same as logistic regression, generalized over L layers  and K units (output dimensions)
+Still need to calculate cost and partial derivatives
+
+Derivatives -
+back propagation algorithm - start from output in training set, calculate deltas for rest of layers (except input)
+forward prop - start from beginning
+
+can handle the offset unit differently depending on impl of algorithm (not part of derivatives though)
+
+Forward/Back Propagation
+Use training example to project forward based on random initial theta at each layer
+Calculate the errors backward
+
+Gradient checking
+    Don't want to use too small an epsilon (10^-4 is good)
+    Computes approx gradient based on approx derivative of J(theta)
+    Why not use this to begin with?  VERY SLOW
+
+Random initialization of theta
+    Can't use 0 weights for theta, all hidden units compute the same
+    Break symmetry by picking a good value of epsilon
+
+Training a neural network
+Pick an architecture, how many layers/units in each layer
+Input units = number of features
+output units = determined by number of classes in classification problem
+reasonable default = use single hidden layer
+    multiple hidden layers with the same number of units
+
+Overall Process
+randomly initialize weights
+forward prop to get h(x)
+implement cost function
+implement backprop to get partial derivatives
+use gradient checking to make sure the partial derivatives are reasonable (then disable GC)
+Use gradient descent (or advanced optimization) with backprop to minimize cost function
+
+Evaluating a learning algorithm
+Get more training examples
+Spend time to select smaller set of features
+Try getting additional features
+Try adding polynomial features
+Try increasing/decreasing lambda
+
+ML diagnostic can help narrow down how to improve the algorithm
+Can take some time to develop diagnostics, but ultimately saves more time in ruling out improvements
+
+Evaluate your hypothesis
+Training linear regression, split data into training/test (70/30)
+    Learn theta from training set
+    Compute test set error (squared error for linear, step function if binary classification (1 if h>=0.5, 0 else))
+
+Model selection problems
+Training error is likely to be lower than generalization error
+What degree of polynomial (d) do we want to pick?
+Can't just pick "best" for training set, will probably overfit
+     We'll split up data into 3 parts, training, validation and test (60/20/20)
+    Pick minimum cost from cross validation set, let training data minimize generalization error
+
+If algorithm doesn't work well, either high bias or high variance
+Bias (underfit) = training error and cross-validation error both high (far left of graph)
+Variance(overfit) = training error is low, cross-validation error high
+
+Regularization (lambda) - too high = underfit, too low = overfit
+Pick range of lambdas, derive thetas for each choice of lambda, pick the lambda with the lowest cost on the cross-validation set
+
+Learning curves
+plot error against training set size, error should grow as it gets tougher to fit function to test
+against cross-validation set size, error should start high and grow less as there are more samples to test
+
+If we have high bias (underfit), more training data won't help
+If we have high variance(overfit), more training data will help the training error and CV error will converge
+
+Evaluating a learning algorithm - revisited
+Get more training examples - fixes overfit
+Spend time to select smaller set of features - fixes overfit
+Try getting additional features - fixes underfit
+Try adding polynomial features - fixes underfit
+Try increasing/decreasing lambda - fixes overfit/underfit
+
+Working with neural networks
+Small - computationally cheap, prone to underfit
+Large - computationally expensive, prone to overfit (use lambda to fix)
+
+If test and training error converge, we're good
+For underfit, try less examples, add polynomial features,
+
+Building a spam filter
+Define feature set as list of words that often appear in spam
+We'll work with 100 words (in practice, use 10k-50k)
+How to build
+"Honeypot" project - creating fake emails trying to get spammers to hit them
+Better features like headers, from, etc.
+Sophisticated detection of words (singluar/plural), misspellings designed to trick the spam filter (w4tches, d3als, etc.)
+Error analysis
+Get a quick and dirty algorithm in place to implement and test on cross-validation
+Plot learning curves to detect underfit/overfit
+Manually inspect where the biggest errors were, look for trend
+    Look at email, what type of email it is?  What features would've helped
+
+I predict P = X, in reality R = X or !X
+if P = X and R = X, then true positive
+if P = X and R != X, then false positive
+if P != X and R != X, then true negative
+if P != X and R = X, then false negative
+
+Error metrics
+    Cancer classification (i.e. rare class), actual percentage is small (0.5%), so it's tough to measure directly
+    Precision/recall gives us a better sense of how the algorithm is doing.
+    Accuracy = (true positives + true negatives)/total examples
+    Precision = True positives/(true positives + false positives)
+    Recall = True positives/(true positives + false negatives)
+
+    The algorithm that always said "no cancer" would have 0 precision
+
+    High precision and high recall combined is a good sign
+
+    How to evaluate the best choice of precision/recall?  F score
+    F = 2PR/(P + R)
+
+Large datasets
+    If there's sufficient information on the feature set, more data will improve prediction
+    If there's insufficient information regarding features, more data won't help
+
+    Hueristic: Based on input/features, could human expert confidently predict y?
+
+    We want a low bias (many params) and low variance (large dataset)
+
+
+Support vector machine (SVM)
+We're gonna modify the logistic regression cost function, make it computationally easier
+Think back to sigmoid, we need theta'*x to be large to get h(x) = 1 (and vice versa)
+slightly different cost function, instead of decreasing/increasing, we'll have a straight-line/step
+When calculating the minimum of the cost function, we'll get rid of the 1/m term, also use a C = 1 /lambda term on the first part of the equation instead of the lambda on the second part
+
+min_ theta
+
+Large Margin
+SVM will help separate/classify data with a large margin (large = better)
+Dealing with outliers
+    If C is very large, you would respect outliers, which might not be best fit (C similar to lambda)
+    If C is not very large, you get better fit, ignoring a few outliers
+
+    Math review
+          Norm is length of vector (hypotenuse length in Euclidean geometry)
+          Inner product of vectors = length of projection of x1 onto x2 (same as matrix multiplication)
+
+Kernels
+    similarity function which detects distance to landmarks
+    Gaussian = exp( - (dist(x - l))^2 / (2 * sigma^2)
+    if dist is small, leads to exp(0) = 1.  If dist is large, leads to roughly exp(-large) = 0, that defines the boundary
+
+     Build feature vector with Gaussian, setting landmarks to training set
+    Given x, compute features, predict y = 1 when theta' & f >= 0
+
+Parameters
+    Large C = lower bias, high variance (overfit)
+    Small C = high bias, lower variance (underfit)
+    Large sigma^2 = high bias, lower variance (underfit), features vary more smoothly
+    Small sigma^2 = low bias, high variance (overfit), features vary less smoothly
+
+SVM in practice
+No need to reinvent the wheel, plenty of good SVM software to calculate theta
+We do choose parameter C and the kernel (similiarity function)
+n = features, m = training set size
+    No kernel (linear) = linear decision boundary - big n, small m
+    Gaussian kernel = also choose sigma^2 parameter - small n, big m
+          make sure to do feature scaling before using this kernel (we're doing differences here remember)
+
+Software may ask you to provide sim function
+Sim function must satisfy Mercer's Theorem to ensure software can use optimizations
+Picking best SVM = choose what does best on the cross-validation set
+
+Logistic regression vs. SVM
+If n is large relative to m, use logistic regression (or SVM without a kernel)
+    say spam classifier,
+If n is small, m is intermediate n = [1,1000], m = [10,10000]
+    use SVM Gaussian
+If n is small, m is large n = [1,1000], m=[50000+]
+    SVM Gaussian too slow, use logistic regression
+
+Neural network might work well but might be slower to train
+SVM perceived as one of the most powerful learning algorithms
+
+Unsupervised Learning
+no label (y), we just have a dataset of (x1, x2, ...)
+Ask the algorithm to find structure in the data
+
+One example - find clustering structure
+Applications - market segmentation, social network analysis, organizing computing clusters, space data
+
+k-means clustering
+We're searching for k number of clusters
+we randomly generate k centroids
+assign each data point to its closest centroid
+take each cluster and find the average of the data in the cluster, result is new centroid (if no data, remove centroid)
+repeat until centroids don't change
+
+To avoid hitting local optima, we need to initialize centroids smartly
+Randomly pick K training examples, set u1...uk to these examples
+Run k-means several times (roughly 100), calculate cost (distortion) for each, pick config for lowest cost
+Works well with small k, doesn't work as well with large k (> 100)
+
+Choosing the number of clusters (no automatic way)
+"Elbow method" - Plot cost over choices of k, find the value of k where cost decreases significantly slower
+Not used that often, sometimes the distortion decreases evenly, no clear elbow
+
+MISSING - DIMENSIONALITY REDUCTION
+
+Principal Component Analysis - PCA
+always do mean normalization, feature scaling before doing PCA
+
+Reduce data from n-dimenson to k-dimension
+Compute covariance matrix = sigma
+Take eigenvectors of sigma, [U, S, V] = svd(sigma)
+Take first k columns of U to get U_reduce, U_r = U(:, 1:k)
+z = U_r' * x
+
+Application - Reconstruction from compressed representation
+x_approx = U_r * z, should be close to original x
+
+Choosing k for PCA (# of components)
+99% variance retained (projection error below 0.01)
+iteratively check values of k
+
+In practice
+    speed up supervised learning for 10000 dimensions, reduce x -> y with 10k dimensions to z -> y with 1k dimensions
+    only apply to training set, then apply params to CV/test set
+Bad use - prevent overfitting
+    Reducing dimensions to reduce # of features
+    Should use regularization instead!
+Before resorting to PCA, try to work with raw data
+
+Anomaly Detection
+manufacturing airplanes - track measurements for an engine, new engine has certain features, does     it need more testing?
+fraud detection - user logins/transactions, build model
+monitoring computers in a datacenter - memory use, i/o, cpu, etc.
+
+build a model for Prob_x, if P(x_test) < E, flag anomaly
+
+Gaussian distribution (bell curve), X ~ (mean mu, variance sigma^2)
+    when mean is 0 and variance is 1, it's normal
+
+I suspect that my dataset comes from Gaussian distribution, I want to estimate the values of mu, sigma^2 by taking mean/variance of dataset.
+Looking at bell curve, apex is centered at mean, curve is roughly 3 sigma's wide (on each side)
+
+Algorithm - assume Gaussian dist for each feature, assume each feature is "independent"
+Take product of probabilities based on X_test
+
+Evaluating an anomaly detection system
+Take a set of data with known anomalies
+Split into training/CV/test, don't use same data in test and CV set
+Fit model on training set without anomalies, on CV/test, predict anomaly/non-anomaly
+    How well does CV/test do?
+        Classification accuracy not good, it will give an "always y=0" algorithm a high score
+        Try
+             True positive/false positive/false negative/true negative
+              Precision/Recall
+              F1-score???
+    Can pick the epsilon that optimizes these metrics
+
+anomaly detection vs. supervised learning
+Anomaly
+    small number of positive examples, large number of negative examples
+    many different types of anomalies (hard to learn what an anomaly is)
+    future anomalies could look different
+    examples - fraud detection, manufacturing (engines), monitoring data center
+
+Supervised
+    large number of positive and negative examples (spam)
+    enough positive examples to get a sense of future positives
+    examples - spam classifier, weather prediction, cancer classification
+
+Choosing what features to use in anomaly detection
+    big impact on how you choose features
+    if feature x has a skewed histogram, log(x) would look much more Gaussian
+    log does the opposite of exponentiation (bounds into tighter range)
+
+Anomaly detection performing poorly, try coming up with more features to distinguish between the normal and analogous examples.
+
+Recommender Systems
+
+Very relevant/popular subject today (Amazon, Netflix)
+Automatically learn features
+
+Just like linear regression, but learning theta vector for each user
+
+Collaborative Filtering
+What if users actually specify initial theta parameters
+
+Given features, you can estimate parameters
+Given parameters, you can estimate features
+No need to go back and forth, you can minimze and solve simultaneously
+i = movies, j = users, k = features
+
+Initialize X and Theta to small random values to ensure symmetry breaking,
+Minimize using gradient descent
+
+Algorithms for Large Datasets
+e.g. Census data is on the scale of 100M records
+Take sample data (n = 1000) and plot learning curve for a range of values to see if algorithm has high variance when n is small
+
+Stochastic gradient descent
+Randomly shuffle dataset
+Do incremental gradient descent for each example
+
+Every iteration will be much faster (not summing over entire dataset each time)
+Won't always move toward global minimum, will typically wander around region near global minimum (close enough is fine)
+
+Mini-batch gradient descent
+    Run b examples instead of n (batch gradient) or 1 (stochastic)
+
+Convergence
+    batch - plot J_train as function of number of iterations of GD
+    stochastic - compute cost before updating theta, plot these costs for roughly every 1000 iterations averaged over 1000 examples
+          increasing that k = 1000 value will lead to a smoother curve but less feedback
+          bigger k could show overall trend better
+          increasing cost (diverging), use smaller learning rate alpha
+
+Can also slowly decrease the alpha over time if we want a true convergence (instead of oscillation around small region), most people won't bother with this as algorithm will get more finacky
+
+Online learning
+Continuous stream of incoming data
+gradient descent, constantly updating theta based on incoming data, discard data once finished
+
+Examples - product search (online store) - what 10 phones to return for search
+    click on result, y = 1, else y = 0
+    CTR - click-through rate
+
+MapReduce
+split training set into subsets
+parallelize summation into k tasks for k machines, add results
+
+Photo OCR (optical character recognition)
+image -> text detection -> character segmentation -> character recognition
+
+Text Detection
+sliding window classifier =>
+     define the bounds of a rectangle
+     run classifier to see if it's a match
+     slide a few pixels to right/down to check new region
+
+take output of classifier, apply expansion (make nearby pixels white as well)
+use aspect ratios to discard regions that probably aren't text
+
+Character segmentation
+     Look for splits (spaces)
+
+Artificial datasets
+     build out artificial data using system fonts
+    do representative distortions
+
+    works best with low bias
+
+Ceiling analysis
+    What step in this pipeline should I focus most on to improve performance (based on scarcity of time/team resources)
+    Start with Text Detection, manually give it the right answers for the test set, measure new performance
+    Do for Character Segmentation and Character Recognition, observe how performance improves
+
+
+Task
+Replicate assignment results using Spark?
+http://fommil.github.io/scalax14/#/
+
